@@ -46,8 +46,7 @@ export default function CreateRecipes() {
         console.error(err);
     }
   }
-
-
+  
   return (
     <div class="flex flex-col justify-center items-center p-5 bg-white rounded-md shadow-md m-5 w-[400px]">
     <h2 class="mt-0">Create Recipe</h2>

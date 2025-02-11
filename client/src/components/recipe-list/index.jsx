@@ -5,20 +5,20 @@ export default function RecipeItem({ item }) {
     <div className="flex flex-col w-80 overflow-hidden p-5 bg-white/75 shaadow-xl gap-5 border-2 rounded-2xl border-white">
       <div className="h-40 flex justify-center overflow-hidden items-center rounde-xl">
         <img
-          src={item?.image_url}
+          src={item?.imageURL}
           alt="recipe item"
           className="block w-full"
         ></img>
       </div>
       <div>
         <span className="text-sm text-cyan-700 font-medium">
-          {item?.publisher}
+          {item?.type}
         </span>
         <h3 className="font-bold text-2xl truncate text-black">
           {item?.title}
         </h3>
         <Link
-          to={`/recipe-item/${item?.id}`}
+          to={`/recipe-item/${item?._id}`}
           className="text-sm p-3 px-8 mt-5 rounded-lg uppercase font-medium tracking-wider inline-block shawdow-md text-white bg-black"
         >
           Recipe Details
