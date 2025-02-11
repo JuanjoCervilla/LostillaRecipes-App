@@ -1,0 +1,5 @@
+Para lanzar el servidor y el client, hay que lanzar npm start 
+
+
+Comanda en Postman para el searchBar : http://localhost:3001/recipes?search=las
+Comanda en Postman para el recipeID information : http://localhost:3001/recipes/6753148664b81e1ca112494d

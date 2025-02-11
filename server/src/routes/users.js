@@ -5,54 +5,57 @@ import { UserModel } from "../models/Users.js"
 
 const router = express.Router()
 
-//  creating possibles routes : resgister and login
-
-// register router
-// async(req, res) --> req = variables requeridas and res = variables que envías 
-router.post("/register", async(req, res) =>{
+// register router Post
+router.post("/register", async(req, res) =>{ // async(req, res) --> req = variables requeridas and res = variables que envías 
     
-    // tenemos que asegurarnos que cuando llamamos a esto desde el front lleve tanto username como password
+    // Las variables requeridas son username and password. Haremos una call usando estas dos variables
     const { username, password } = req.body
 
-    // vamos a confirmar que este user existe en la base de datos
+    // Buscamos si username existe ya en la base de datos. UserModel en la collection de la base de datos
     const user = await UserModel.findOne({username : username}); 
 
-    // if the user is already we don't continue. We want null as value, if we want to register an user
+    // Si el user ya existe, no estaríamos interesados en crearlo
     if (user) {
         return res.json({ message: "User already exists!" })
     }
 
-    // we use bcrypt to hash the password 
+    // En el caso de que el username no exista vamos a crear un hash para la password
     const  hashedPassword = await bcrypt.hash(password, 10 )
 
-    // add the user to the database
+    // Add the user and hashedPassword to the database
     const newUser = new UserModel({username, password: hashedPassword})
     await newUser.save();
 
-    //recogemos la respuesta de la API
+    // Mensaje cuando la importación ha sido realizada
     res.json({message : "User Registered Succesfully"});
 
 });
 
-// login router
+// login router Post
 router.post("/login", async(req, res) =>{
     
+    // Las variables requeridas son username and password. Haremos una call usando estas dos variables
     const { username, password } = req.body
+
+    // Buscamos si username existe ya en la base de datos. UserModel en la collection de la base de datos
     const user = await UserModel.findOne({username : username}); 
 
-    // buscamos si el user existe o no
+    // Si el usuario no existe no se podrá logear
     if (!user) {
         return res.json({ message : "User Doesn't Exist!" })
     }
 
+    // Si el usuario existe comprobaremos su contraseña. No podemos hacer el unhash de una password pero si podemos
+    // comparar dos password hashed 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
+    // Si la comparación no es buena, diremos que la password es incorrecta
     if (!isPasswordValid){
-        return res.json({message : "Username or Password Is Incorrect!"})
+        return res.json({message : "Password Is Incorrect!"})
     }
 
+    // creamos un token y un id como respuesto. no entiendo para que ????
     const token = jwt.sign({id: user._id}, "secret");
-
 
     res.json({token, userID: user._id})
 

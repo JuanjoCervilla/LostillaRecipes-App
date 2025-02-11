@@ -14,6 +14,7 @@ const router = express.Router();
 //   }
 // });
 
+// searchBar router Get
 router.get("/", async (req, res) => {
     try {
       const { search } = req.query; // Extract the 'search' parameter from the query string
@@ -23,21 +24,24 @@ router.get("/", async (req, res) => {
   
       const response = await RecipeModel.find(filter); // Find recipes based on the filter
       res.json(response);
+
     } catch (err) {
         res.json(err); // Improved error handling
     }
 });
 
-
+// recipeId information router Get
 router.get("/:id", async (req, res) => {
     try {
       const { id } = req.params; // Extract the id from the URL parameters
       const recipe = await RecipeModel.findById(id); // Mongoose will match by the ObjectId
   
+      // if recipe is not found
       if (!recipe) {
         return res.status(404).json({ message: "Recipe not found" }); // Handle non-existent ObjectId
       }
-  
+    
+      // if recipe is founded
       res.json(recipe); // Respond with the found recipe
     } catch (err) {
       if (err.kind === "ObjectId") {
@@ -47,20 +51,22 @@ router.get("/:id", async (req, res) => {
     }
   });
   
-
-
-
+// new recipes router POST
 router.post("/", async (req, res) => {
-  const newRecipe = new RecipeModel(req.body);
 
+  // las variables requeridas para el post tendrá la misma estructura que el RecipeModel
+  const newRecipe = new RecipeModel(req.body); 
+
+  // intentamos guardar la variable requerida
   try {
-    const response = await newRecipe.save(); // no condtions en el find va a hacer que busque todo el documento
+    const response = await newRecipe.save(); 
     res.json(response);
   } catch (err) {
     res.json(err);
   }
 });
 
+// 
 router.put("/", async (req, res) => {
   try {
     const recipe = await RecipeModel.findById(req.body.recipeID);
@@ -81,7 +87,7 @@ router.get("/savedRecipes/ids", async (req, res) => {
     const user = await UserModel.findById(req.body.userID);
     res.json({ savedRecipes: user?.savedRecipes });
   } catch (err) {
-    res.json(err);
+    res.json(err);  
   }
 });
 

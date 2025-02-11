@@ -14,5 +14,6 @@ const RecipeSchema = new mongoose.Schema({
   },
 });
 
-//We create the collection or table called users que sigue la estructura del schema
+// Important to know : we have the database recipes and we have some collections. In our case, we have recipes and users
+// Entonces aquí creamos la collection siguiendo la estructura del schema
 export const RecipeModel = mongoose.model("recipes", RecipeSchema);
