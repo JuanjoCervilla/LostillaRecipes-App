@@ -46,15 +46,20 @@ export default function Details() {
 
       <div className="flex flex-col gap-3">
 
+        {/* Recipe's title */}
+        <h1 className="font-bold text-2xl truncate text-black">
+          {recipeDetailsData?.title}
+        </h1>
+
         {/* Recipe's type */}
         <span className="text-sm text-cyan-700 font-medium">
           {recipeDetailsData?.type}
         </span>
 
-        {/* Recipe's title */}
-        <h3 className="font-bold text-2xl truncate text-black">
-          {recipeDetailsData?.title}
-        </h3>
+        {/* Recipe's tags */}
+        <span className="text-sm text-orange-700 font-medium">
+          {recipeDetailsData?.tags?.join(" - ")}
+        </span>
         
         {/* Button Add Planning */}
         <div>
@@ -77,32 +82,35 @@ export default function Details() {
         <div>
           <span className="text-2xl font-semibold text-black">
             Instructions:
-          </span> <br></br>
-          <span className="text-sm text-black-700 font-medium">
-          {recipeDetailsData?.instructions}
-        </span>
+          </span>
+          <div className="mt-3">
+            <ol className="list-decimal list-inside text-sm text-700 font-medium">
+              {recipeDetailsData?.instructions?.map((instruction, index) => (
+                <li key={index}>{instruction}</li>
+              ))}
+            </ol>
+          </div>
         </div>
         <br />
 
         {/* Ingredients */}
         <div>
-          <span className="text-2xl font-semibold text-black">
-            Ingredients:
-          </span>
-          <ul className="flex flex-col gap-3">
-            {Array.isArray(recipeDetailsData?.ingredients) ? (
-              recipeDetailsData.ingredients.map((ingredient, index) => (
-                <li key={index}>
-                  <span className="text-sm font-medium text-black">{ingredient}</span>
+          <span className="text-2xl font-semibold text-black">Ingredients:</span>
+          <div className="mt-3">
+            <ul className="list-disc pl-5 flex flex-col gap-3">
+              {Array.isArray(recipeDetailsData?.ingredients) && recipeDetailsData.ingredients.length > 0 ? (
+                recipeDetailsData.ingredients.map((ingredient, index) => (
+                  <li key={index} className="text-sm text-700 font-medium">{ingredient.name} - {ingredient.quantity} {ingredient.unit} </li>
+                ))
+              ) : (
+                <li>
+                  <span className="text-sm text-gray-600">No ingredients available</span>
                 </li>
-              ))
-            ) : (
-              <li>
-                <span className="text-sm text-gray-600">No ingredients available</span>
-              </li>
-            )}
-          </ul>
+              )}
+            </ul>
+          </div>
         </div>
+
         
       </div>
     </div>

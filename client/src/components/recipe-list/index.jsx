@@ -15,14 +15,21 @@ export default function RecipeItem({ item }) {
       </div>
       
       <div>
-        {/* Type */}
-        <span className="text-sm text-cyan-700 font-medium">
-          {item?.type}
+        <div className="flex items-center justify-between gap-4">
+          {/* Title */}
+          <h3 className="font-bold text-2xl truncate text-black">
+            {item?.title}
+          </h3>
+          {/* Type */}
+          <span className="text-sm text-cyan-700 font-medium">
+            {item?.type}
+          </span>
+        </div>
+        {/* Tag */}
+        <span className="text-sm text-orange-700 font-medium">
+          {item?.tags?.join(" - ")}
         </span>
-        {/* Title */}
-        <h3 className="font-bold text-2xl truncate text-black">
-          {item?.title}
-        </h3>
+        <br></br>
         {/* Button to Recipe Details */}
         <Link
           to={`/recipe-item/${item?._id}`}
