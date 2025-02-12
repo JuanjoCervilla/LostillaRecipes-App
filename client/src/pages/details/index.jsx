@@ -3,23 +3,24 @@ import { useParams } from "react-router-dom";
 import { GlobalContext } from "../../context";
 
 export default function Details() {
+
+  // The useParams hook in React Router is used to access URL parameters inside a React component.
   const { id } = useParams();
+
   const {
     recipeDetailsData,
     setRecipeDetailsData,
     planningList,
     handleAddToPlanning,
   } = useContext(GlobalContext);
- 
 
-  console.log(recipeDetailsData)
   useEffect(() => {
     async function getRecipeDetails() {
       const response = await fetch(
         `http://localhost:3001/recipes/${id}` 
       );
+
       const data = await response.json();
-      console.log(data)
 
       if (data) {
         setRecipeDetailsData(data);
@@ -28,26 +29,34 @@ export default function Details() {
     getRecipeDetails();
   }, []);
 
-  console.log(recipeDetailsData?.ingredients)
 
   return (
     <div className="container mx-auto py-10 grid grid-cols-1 lg:grid-cols-2 gap-10">
+
+      {/* Image */}
       <div className="row-start-2 lg:row-start-auto">
         <div className="h-96 overflow-hidden rounded-xl group">
           <img
             src={recipeDetailsData?.imageURL}
             className="w-full h-full object-cover block group-hover:scale-105 duration-300"
+            alt = "Recipe visualization"
           />
         </div>
       </div>
 
       <div className="flex flex-col gap-3">
+
+        {/* Recipe's type */}
         <span className="text-sm text-cyan-700 font-medium">
           {recipeDetailsData?.type}
         </span>
+
+        {/* Recipe's title */}
         <h3 className="font-bold text-2xl truncate text-black">
           {recipeDetailsData?.title}
         </h3>
+        
+        {/* Button Add Planning */}
         <div>
           <button
             onClick={() => handleAddToPlanning(recipeDetailsData?.recipe)}
@@ -63,6 +72,8 @@ export default function Details() {
           </button>
         </div>
         <br />
+
+        {/* Instructions */}
         <div>
           <span className="text-2xl font-semibold text-black">
             Instructions:
@@ -72,6 +83,8 @@ export default function Details() {
         </span>
         </div>
         <br />
+
+        {/* Ingredients */}
         <div>
           <span className="text-2xl font-semibold text-black">
             Ingredients:
@@ -90,6 +103,7 @@ export default function Details() {
             )}
           </ul>
         </div>
+        
       </div>
     </div>
   );

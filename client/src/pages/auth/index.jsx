@@ -127,15 +127,6 @@ const Register = () => {
   );
 };
 
-// export const Auth = () => {
-//   return (
-//     <div className="flex justify-center items-center h-screen bg-gray-100">
-//       <Login />
-//       <Register />
-//     </div>
-//   );
-// }; 
-
 export default function Auth() {
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
