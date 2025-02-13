@@ -5,53 +5,87 @@ import express from "express";
 
 const router = express.Router();
 
-// searchBar router Get
+// Combined search and filter route
 router.get("/", async (req, res) => {
-    try {
-      const { search } = req.query; // Extract the 'search' parameter from the query string
-      const filter = search
-      ? { 
-          $or: [ // Use $or to search in both title and tags
-              { title: { $regex: search, $options: "i" } }, // Search in title (case-insensitive)
-              { tags: { $regex: search, $options: "i" } } // Search in tags (case-insensitive)
-          ]
-      }
+  try {
+    const { search, types } = req.query; // Extract 'search' and 'types' parameters from the query string
+
+    // Construct search filter if search parameter is provided
+    const searchFilter = search
+      ? {
+          $or: [
+            { title: { $regex: search, $options: "i" } }, // Search in title (case-insensitive)
+            { tags: { $regex: search, $options: "i" } }, // Search in tags (case-insensitive)
+          ],
+        }
       : {};
-      
-      const response = await RecipeModel.find(filter); // Find recipes based on the filter
-      res.json(response);
 
-    } catch (err) {
-        res.json(err); // Improved error handling
-    }
-});
+    // Construct type filter if types parameter is provided
+    const typeFilter = types
+      ? {
+          type: { $in: types.split(",").map((type) => type.trim()) }, // Filter by type
+        }
+      : {};
 
-// Filter Route (by types)
-router.get("/filter", async (req, res) => {
-  const { types } = req.query; // Extract the 'types' query parameter
+    // Combine search and type filters
+    const filter = { ...searchFilter, ...typeFilter };
 
-  // Check if the 'types' parameter exists and has values
-  if (types) {
-      // Split the types string by commas and trim any extra spaces from each type
-      const typeArray = types.split(",").map(type => type.trim());
-
-      // Use $in to filter recipes by type (match any of the provided types)
-      const filter = {
-          type: { $in: typeArray }
-      };
-
-      try {
-          const response = await RecipeModel.find(filter); // Find recipes based on the filter
-          res.json(response);
-      } catch (err) {
-          res.status(500).json({ error: err.message }); // Improved error handling
-      }
-  } else {
-      // If no types are provided, return all recipes
-      const response = await RecipeModel.find();
-      res.json(response);
+    // Find recipes based on the filter
+    const response = await RecipeModel.find(filter);
+    res.json(response);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
+
+
+// // searchBar router Get
+// router.get("/", async (req, res) => {
+//     try {
+//       const { search } = req.query; // Extract the 'search' parameter from the query string
+//       const filter = search
+//       ? { 
+//           $or: [ // Use $or to search in both title and tags
+//               { title: { $regex: search, $options: "i" } }, // Search in title (case-insensitive)
+//               { tags: { $regex: search, $options: "i" } } // Search in tags (case-insensitive)
+//           ]
+//       }
+//       : {};
+      
+//       const response = await RecipeModel.find(filter); // Find recipes based on the filter
+//       res.json(response);
+
+//     } catch (err) {
+//         res.json(err); // Improved error handling
+//     }
+// });
+
+// // Filter Route (by types)
+// router.get("/filter", async (req, res) => {
+//   const { types } = req.query; // Extract the 'types' query parameter
+
+//   // Check if the 'types' parameter exists and has values
+//   if (types) {
+//       // Split the types string by commas and trim any extra spaces from each type
+//       const typeArray = types.split(",").map(type => type.trim());
+
+//       // Use $in to filter recipes by type (match any of the provided types)
+//       const filter = {
+//           type: { $in: typeArray }
+//       };
+
+//       try {
+//           const response = await RecipeModel.find(filter); // Find recipes based on the filter
+//           res.json(response);
+//       } catch (err) {
+//           res.status(500).json({ error: err.message }); // Improved error handling
+//       }
+//   } else {
+//       // If no types are provided, return all recipes
+//       const response = await RecipeModel.find();
+//       res.json(response);
+//   }
+// });
 
 
 // recipeId information router Get

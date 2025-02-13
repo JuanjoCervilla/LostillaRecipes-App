@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { GlobalContext } from "../../context";
 import { useCookies } from "react-cookie";
@@ -20,14 +20,24 @@ export default function Navbar() {
 
   // Handle checkbox changes (filtering types)
   const handleFilterChange = (event) => {
-    const value = event.target.value;
-    setSelectedTypes((prevSelectedTypes) =>
-      prevSelectedTypes.includes(value)
-        ? prevSelectedTypes.filter((type) => type !== value)
-        : [...prevSelectedTypes, value]
-    );
-    console.log(selectedTypes)
+    const value = event.target.value.replace(/ /g, "+"); // Reemplaza espacios con '+'
+  
+    setSelectedTypes((prevSelected) => {
+      const selectedArray = prevSelected ? prevSelected.split(",") : []; // Convertimos string a array
+  
+      if (selectedArray.includes(value)) {
+        return selectedArray.filter((type) => type !== value).join(","); // Quitamos el elemento
+      } else {
+        return [...selectedArray, value].join(","); // Agregamos el nuevo valor
+      }
+    });
   };
+  
+  
+  
+  // useEffect(() => {
+  //   console.log(selectedTypes)
+  // }, [selectedTypes]); // This will run every time selectedTypes changes
 
   return (
     <div>
@@ -83,7 +93,7 @@ export default function Navbar() {
       {/* Food Type Checklist */}
       <div className="w-full py-4 bg-white flex justify-center mt-4">
         <div className="flex gap-6">
-          {["Main Dish", "Drink", "Appetizer", "Dessert"].map((foodType) => (
+          {["Main dish", "Drink", "Appetizer", "Dessert"].map((foodType) => (
             <label key={foodType} className="flex items-center space-x-2">
               <input
                 type="checkbox"
