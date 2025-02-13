@@ -17,7 +17,7 @@ router.get("/", async (req, res) => {
           ]
       }
       : {};
-  
+      
       const response = await RecipeModel.find(filter); // Find recipes based on the filter
       res.json(response);
 
@@ -25,6 +25,34 @@ router.get("/", async (req, res) => {
         res.json(err); // Improved error handling
     }
 });
+
+// Filter Route (by types)
+router.get("/filter", async (req, res) => {
+  const { types } = req.query; // Extract the 'types' query parameter
+
+  // Check if the 'types' parameter exists and has values
+  if (types) {
+      // Split the types string by commas and trim any extra spaces from each type
+      const typeArray = types.split(",").map(type => type.trim());
+
+      // Use $in to filter recipes by type (match any of the provided types)
+      const filter = {
+          type: { $in: typeArray }
+      };
+
+      try {
+          const response = await RecipeModel.find(filter); // Find recipes based on the filter
+          res.json(response);
+      } catch (err) {
+          res.status(500).json({ error: err.message }); // Improved error handling
+      }
+  } else {
+      // If no types are provided, return all recipes
+      const response = await RecipeModel.find();
+      res.json(response);
+  }
+});
+
 
 // recipeId information router Get
 router.get("/:id", async (req, res) => {
