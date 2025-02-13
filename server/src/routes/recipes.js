@@ -5,22 +5,18 @@ import express from "express";
 
 const router = express.Router();
 
-// router.get("/", async (req, res) => {
-//   try {
-//     const response = await RecipeModel.find({}); // no condtions en el find va a hacer que busque todo el documento
-//     res.json(response);
-//   } catch (err) {
-//     res.json(err);
-//   }
-// });
-
 // searchBar router Get
 router.get("/", async (req, res) => {
     try {
       const { search } = req.query; // Extract the 'search' parameter from the query string
       const filter = search
-        ? { title: { $regex: search, $options: "i" } } // Case-insensitive partial match
-        : {}; // If no search term, return all documents
+      ? { 
+          $or: [ // Use $or to search in both title and tags
+              { title: { $regex: search, $options: "i" } }, // Search in title (case-insensitive)
+              { tags: { $regex: search, $options: "i" } } // Search in tags (case-insensitive)
+          ]
+      }
+      : {};
   
       const response = await RecipeModel.find(filter); // Find recipes based on the filter
       res.json(response);

@@ -107,18 +107,7 @@ export default function CreateRecipes() {
   };
 
   // onSubmit button
-  // const onSubmit = async (event) => {
-  //   event.preventDefault();
-  //   try {
-  //     await axios.post("http://localhost:3001/recipes", recipe); // se lanza el post de la API cuando clicas en el botón de create recipes
-  //     alert("Recipe created "); // sale una alerta cuando la receta es añadida a la base de datos
-  //     navigate("/"); // acto seguido te envía a la página de inicio
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // };
-
-  const onSubmit = async (event) => {
+    const onSubmit = async (event) => {
     event.preventDefault();
   
     // Check if the required fields are filled
@@ -163,14 +152,27 @@ export default function CreateRecipes() {
           <label htmlFor="type" class="mb-[5px]">
             Type
           </label>
-          <input
+          <select
+            id="type"
+            name="type"
+            value={recipe.type}
+            onChange={handleChange}
+            class="p-2 text-base rounded-md border border-gray-500"
+          >
+            <option value="">Select a type</option>
+            <option value="Main dish">Main dish</option>
+            <option value="Dessert">Dessert</option>
+            <option value="Appetizer">Appetizer</option>
+            <option value="Drink">Drink</option>
+          </select>
+          {/* <input
             type="text"
             id="type"
             name="type"
             value={recipe.type}
             onChange={handleChange}
             class="p-2 text-base rounded-md border border-gray-500"
-          />
+          /> */}
           <br></br>
 
           {/* Tags field */}

@@ -35,14 +35,14 @@ export default function Navbar() {
       
       {/* Search Bar */}
       <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="search"
-          value={searchParam}
-          onChange={(event) => setSearchParam(event.target.value)}
-          placeholder="Enter your name recipe..."
-          className="bg-white/75 p-3 px-8 rounded-full outline-none lg:w-96 shadow-lg shadow-red-100 focus:shadow-red-200"
-        ></input>
+      <input
+        type="text"
+        name="search"
+        value={searchParam}
+        onChange={(event) => setSearchParam(event.target.value)}
+        placeholder="Enter your name or tag recipe"
+        className="bg-white/80 p-3 px-6 rounded-full outline-none lg:w-96 shadow-md shadow-gray-300 border border-gray-300 transition-all duration-300 ease-in-out transform hover:scale-105 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-white"
+      />
       </form>
 
       <ul className="flex gap-5">
