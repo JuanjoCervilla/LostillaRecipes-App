@@ -1,12 +1,17 @@
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { GlobalContext } from "../../context";
 import { useCookies } from "react-cookie";
 
 export default function Navbar() {
-
   // Access context values
-  const { searchParam, setSearchParam, selectedTypes, setSelectedTypes, handleSubmitSearch } = useContext(GlobalContext);
+  const {
+    searchParam,
+    setSearchParam,
+    selectedTypes,
+    setSelectedTypes,
+    handleSubmitSearch,
+  } = useContext(GlobalContext);
 
   const [cookies, setCookies] = useCookies(["access_token"]);
   const navigate = useNavigate();
@@ -21,10 +26,10 @@ export default function Navbar() {
   // Handle checkbox changes (filtering types)
   const handleFilterChange = (event) => {
     const value = event.target.value.replace(/ /g, "+"); // Reemplaza espacios con '+'
-  
+
     setSelectedTypes((prevSelected) => {
       const selectedArray = prevSelected ? prevSelected.split(",") : []; // Convertimos string a array
-  
+
       if (selectedArray.includes(value)) {
         return selectedArray.filter((type) => type !== value).join(","); // Quitamos el elemento
       } else {
@@ -32,77 +37,96 @@ export default function Navbar() {
       }
     });
   };
-  
-  
-  
-  // useEffect(() => {
-  //   console.log(selectedTypes)
-  // }, [selectedTypes]); // This will run every time selectedTypes changes
 
   return (
     <div>
-      {/* Navbar */}
-      <nav className="flex justify-between items-center py-8 container mx-auto flex-col lg:flex-row gap-5 lg:gap-0">
-        <h2 className="text-2xl font-semibold">
-          <NavLink to={"/"} className="text-black hover:text-gray-700 duration-300">
-            LostillaRecipes
-          </NavLink>
-        </h2>
+    {/* Navbar */}
+    <nav className="flex justify-between items-center py-6 px-6 container mx-auto">
+      {/* Left - Logo */}
+      <h2 className="text-2xl font-semibold text-gray-800">
+        <NavLink to={"/"} className="hover:text-blue-600 transition duration-300">
+          LostillaRecipes
+        </NavLink>
+      </h2>
 
-        {/* Search Bar */}
-        <form onSubmit={handleSubmitSearch}>
+      {/* Center - Search Bar with Apply Filters Button */}
+      <div className="flex items-center gap-3 w-full max-w-lg">
+        <form onSubmit={handleSubmitSearch} className="flex w-full">
           <input
             type="text"
             name="search"
             value={searchParam}
             onChange={(event) => setSearchParam(event.target.value)}
-            placeholder="Enter your name or tag recipe"
-            className="bg-white/80 p-3 px-6 rounded-full outline-none lg:w-96 shadow-md shadow-gray-300 border border-gray-300 transition-all duration-300 ease-in-out transform hover:scale-105 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-white"
+            placeholder="Search recipes..."
+            className="flex-grow bg-gray-100 p-3 px-6 rounded-l-full outline-none shadow-sm border border-gray-300 
+                      transition duration-300 ease-in-out focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
           />
+          <button
+            type="submit"
+            className="bg-blue-500 text-white px-5 py-3 rounded-r-full font-medium 
+                      hover:bg-blue-600 transition duration-300 shadow-md"
+          >
+            Apply Filters
+          </button>
         </form>
+      </div>
 
-        {/* Navbar Links */}
-        <ul className="flex gap-5">
-          <li>
-            <NavLink to={"/create-recipe"} className="text-black hover:text-gray-700 duration-300">
-              ➕
+      {/* Right - Navbar Links */}
+      <ul className="flex gap-6 items-center">
+        <li>
+          <NavLink
+            to={"/create-recipe"}
+            className="text-gray-800 font-medium hover:text-blue-600 transition duration-300"
+          >
+            ➕ Add New Recipe
+          </NavLink>
+        </li>
+        <li>
+          <NavLink
+            to={"/planning"}
+            className="text-gray-800 font-medium hover:text-blue-600 transition duration-300"
+          >
+            📅 Planning
+          </NavLink>
+        </li>
+        <li>
+          {!cookies.access_token ? (
+            <NavLink
+              to={"/auth"}
+              className="text-gray-800 font-medium hover:text-blue-600 transition duration-300"
+            >
+              🔒 Login
             </NavLink>
-          </li>
-          <li>
-            <NavLink to={"/"} className="text-black hover:text-gray-700 duration-300">
-              Home
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to={"/planning"} className="text-black hover:text-gray-700 duration-300">
-              Planning
-            </NavLink>
-          </li>
-          <li>
-            {!cookies.access_token ? (
-              <NavLink to={"/auth"} className="text-black hover:text-gray-700 duration-300">
-                Login
-              </NavLink>
-            ) : (
-              <button onClick={logout}>Logout</button>
-            )}
-          </li>
-        </ul>
-      </nav>
+          ) : (
+            <button
+              onClick={logout}
+              className="bg-red-500 text-white px-4 py-2 rounded-lg font-medium 
+                        hover:bg-red-600 transition duration-300 shadow-sm"
+            >
+              🔓 Logout
+            </button>
+          )}
+        </li>
+      </ul>
+    </nav>
+
 
       {/* Food Type Checklist */}
       <div className="w-full py-4 bg-white flex justify-center mt-4">
-        <div className="flex gap-6">
-          {["Main dish", "Drink", "Appetizer", "Dessert"].map((foodType) => (
-            <label key={foodType} className="flex items-center space-x-2">
+        <div className="flex gap-6 items-center justify-center">
+          {["Drink", "Main dish", "Appetizer", "Dessert"].map((foodType) => (
+            <label
+              key={foodType}
+              className="flex items-center space-x-2 p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition cursor-pointer"
+            >
               <input
                 type="checkbox"
-                value={foodType}
-                checked={selectedTypes.includes(foodType)} // Dynamically check if the type is selected
+                value={foodType.replace(/ /g, "+")}
+                checked={selectedTypes.includes(foodType.replace(/ /g, "+"))}
                 onChange={handleFilterChange}
-                className="h-5 w-5 border-gray-300 rounded focus:ring-2 focus:ring-blue-400"
+                className="h-5 w-5 text-blue-500 border-gray-300 rounded focus:ring-2 focus:ring-blue-400"
               />
-              <span className="text-gray-700">{foodType}</span>
+              <span className="text-gray-700 font-medium">{foodType}</span>
             </label>
           ))}
         </div>

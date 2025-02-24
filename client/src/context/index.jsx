@@ -25,7 +25,6 @@ export default function GlobalState({ children }) {
     console.log("selectedTypes actualizado en contexto:", selectedTypes);
   }, [selectedTypes]); 
 
-
   // FUNCIONES
   // función cuando haces enter en el search bar
   async function handleSubmitSearch(event) {
@@ -57,8 +56,6 @@ export default function GlobalState({ children }) {
     }
   }
   
-  
-
   //
   function handleAddToPlanning(getCurrentItem) {
     console.log(getCurrentItem);
