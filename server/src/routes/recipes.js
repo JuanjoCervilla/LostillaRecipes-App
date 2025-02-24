@@ -5,25 +5,37 @@ import express from "express";
 
 const router = express.Router();
 
-// searchBar router Get
+// Combined search and filter route
 router.get("/", async (req, res) => {
-    try {
-      const { search } = req.query; // Extract the 'search' parameter from the query string
-      const filter = search
-      ? { 
-          $or: [ // Use $or to search in both title and tags
-              { title: { $regex: search, $options: "i" } }, // Search in title (case-insensitive)
-              { tags: { $regex: search, $options: "i" } } // Search in tags (case-insensitive)
-          ]
-      }
-      : {};
-  
-      const response = await RecipeModel.find(filter); // Find recipes based on the filter
-      res.json(response);
+  try {
+    const { search, types } = req.query; // Extract 'search' and 'types' parameters from the query string
 
-    } catch (err) {
-        res.json(err); // Improved error handling
-    }
+    // Construct search filter if search parameter is provided
+    const searchFilter = search
+      ? {
+          $or: [
+            { title: { $regex: search, $options: "i" } }, // Search in title (case-insensitive)
+            { tags: { $regex: search, $options: "i" } }, // Search in tags (case-insensitive)
+          ],
+        }
+      : {};
+
+    // Construct type filter if types parameter is provided
+    const typeFilter = types
+      ? {
+          type: { $in: types.split(",").map((type) => type.trim()) }, // Filter by type
+        }
+      : {};
+
+    // Combine search and type filters
+    const filter = { ...searchFilter, ...typeFilter };
+
+    // Find recipes based on the filter
+    const response = await RecipeModel.find(filter);
+    res.json(response);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // recipeId information router Get
