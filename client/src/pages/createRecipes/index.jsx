@@ -128,8 +128,8 @@ export default function CreateRecipes() {
   
 
   return (
-    <div class="flex justify-center bg-gray-100 p-5">
-      <div class="flex flex-col justify-center items-center p-5 bg-white rounded-md shadow-md m-5 w-[400px]">
+    <div class="flex justify-center bg-white p-5">
+      <div class="flex flex-col justify-center items-center p-5 bg-gray-100 rounded-md shadow-md m-5 w-[400px]">
         <h2 class="font-bold mt-0">Create Recipe</h2>
         <form class="flex flex-col" onSubmit={onSubmit}>
           <br></br>

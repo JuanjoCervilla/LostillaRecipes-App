@@ -44,7 +44,7 @@ export default function Planning() {
         <table className="min-w-full border-collapse">
           <thead>
             <tr>
-              <th className="border p-2">Day</th>
+              <th className="border px-2 py-2 text-center whitespace-nowrap w-1">Day</th>
               <th className="border p-2">Lunch</th>
               <th className="border p-2">Dinner</th>
             </tr>
@@ -52,7 +52,7 @@ export default function Planning() {
           <tbody>
             {Object.entries(weeklyTimetable).map(([day, meals]) => (
               <tr key={day}>
-                <td className="border p-2">{day}</td>
+                <td className="border px-2 py-2 text-center whitespace-nowrap w-1">{day}</td>
                 <td className="border p-2">{meals.lunch}</td>
                 <td className="border p-2">{meals.dinner}</td>
               </tr>
