@@ -14,14 +14,19 @@ const debounce = (func, delay) => {
 
 export default function Planning() {
   const { recipePlanningList, loading } = useContext(GlobalContext);
-  const [weeklyTimetable, setWeeklyTimetable] = useState({
-    Monday: { lunch: "", dinner: "" },
-    Tuesday: { lunch: "", dinner: "" },
-    Wednesday: { lunch: "", dinner: "" },
-    Thursday: { lunch: "", dinner: "" },
-    Friday: { lunch: "", dinner: "" },
-    Saturday: { lunch: "", dinner: "" },
-    Sunday: { lunch: "", dinner: "" },
+  const [weeklyTimetable, setWeeklyTimetable] = useState(() => {
+    const savedTimetable = localStorage.getItem("weeklyTimetable");
+    return savedTimetable
+      ? JSON.parse(savedTimetable)
+      : {
+          Monday: { lunch: "", dinner: "" },
+          Tuesday: { lunch: "", dinner: "" },
+          Wednesday: { lunch: "", dinner: "" },
+          Thursday: { lunch: "", dinner: "" },
+          Friday: { lunch: "", dinner: "" },
+          Saturday: { lunch: "", dinner: "" },
+          Sunday: { lunch: "", dinner: "" },
+        };
   });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,6 +34,11 @@ export default function Planning() {
   const [selectedMeal, setSelectedMeal] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredRecipes, setFilteredRecipes] = useState(recipePlanningList);
+
+  // Save timetable to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("weeklyTimetable", JSON.stringify(weeklyTimetable));
+  }, [weeklyTimetable]);
 
   // Effect for updating the filtered recipe list
   useEffect(() => {
@@ -45,7 +55,7 @@ export default function Planning() {
     } else {
       debouncedSearch(searchTerm);
     }
-  }, [searchTerm, recipePlanningList]); // No need for useCallback
+  }, [searchTerm, recipePlanningList]);
 
   const openRecipeModal = (day, meal) => {
     setSelectedDay(day);
@@ -54,14 +64,37 @@ export default function Planning() {
   };
 
   const addRecipeToTimetable = (recipe) => {
-    setWeeklyTimetable((prevTimetable) => ({
-      ...prevTimetable,
-      [selectedDay]: {
-        ...prevTimetable[selectedDay],
-        [selectedMeal]: recipe, // Add the selected recipe to the timetable
-      },
-    }));
-    setIsModalOpen(false); // Close the modal after selection
+    setWeeklyTimetable((prevTimetable) => {
+      const updatedTimetable = {
+        ...prevTimetable,
+        [selectedDay]: {
+          ...prevTimetable[selectedDay],
+          [selectedMeal]: recipe,
+        },
+      };
+
+      localStorage.setItem("weeklyTimetable", JSON.stringify(updatedTimetable));
+
+      return updatedTimetable;
+    });
+
+    setIsModalOpen(false);
+  };
+
+  const removeMealFromTimetable = (day, meal) => {
+    setWeeklyTimetable((prevTimetable) => {
+      const updatedTimetable = {
+        ...prevTimetable,
+        [day]: {
+          ...prevTimetable[day],
+          [meal]: "", // Reset meal selection
+        },
+      };
+
+      localStorage.setItem("weeklyTimetable", JSON.stringify(updatedTimetable));
+
+      return updatedTimetable;
+    });
   };
 
   if (loading) return <div>Loading... Please wait!</div>;
@@ -73,9 +106,7 @@ export default function Planning() {
         <table className="min-w-full border-collapse">
           <thead>
             <tr>
-              <th className="border px-2 py-2 text-center whitespace-nowrap w-1">
-                Day
-              </th>
+              <th className="border px-2 py-2 text-center whitespace-nowrap w-1">Day</th>
               <th className="border p-2">Lunch</th>
               <th className="border p-2">Dinner</th>
             </tr>
@@ -83,65 +114,45 @@ export default function Planning() {
           <tbody>
             {Object.entries(weeklyTimetable).map(([day, meals]) => (
               <tr key={day}>
-                <td className="border px-2 py-2  whitespace-nowrap w-1">
-                  {day}
-                </td>
-                <td className="border p-2">
-                  {meals.lunch ? (
-                    <div className="flex items-center justify-center gap-4">
-                      {/* Title Section */}
-                      <div className="text-center">
-                        <div className="text-lg">{meals.lunch.title}</div>
-                      </div>
+                <td className="border px-2 py-2 whitespace-nowrap w-1">{day}</td>
+                {["lunch", "dinner"].map((mealType) => (
+                  <td key={mealType} className="border p-2">
+                    {meals[mealType] ? (
+                      <div className="flex items-center justify-center gap-4">
+                        {/* Title Section */}
+                        <div className="text-center">
+                          <div className="text-lg">{meals[mealType].title}</div>
+                        </div>
 
-                      {/* Image Section */}
-                      <div className="flex justify-center">
-                        <img
-                          src={meals.lunch.imageURL}
-                          alt="recipe item"
-                          className="w-44 h-34 object-cover rounded-lg shadow-md"
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex justify-center">
-                      <button
-                        onClick={() => openRecipeModal(day, "lunch")}
-                        className="px-4 py-2 bg-gray-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition"
-                      >
-                        + Add meal
-                      </button>
-                    </div>
-                  )}
-                </td>
-                <td className="border p-2">
-                  {meals.dinner ? (
-                    <div className="flex items-center justify-center gap-4">
-                      {/* Title Section */}
-                      <div className="text-center">
-                        <div className="text-lg">{meals.dinner.title}</div>
-                      </div>
+                        {/* Image Section */}
+                        <div className="flex justify-center">
+                          <img
+                            src={meals[mealType].imageURL}
+                            alt="recipe item"
+                            className="w-44 h-34 object-cover rounded-lg shadow-md"
+                          />
+                        </div>
 
-                      {/* Image Section */}
-                      <div className="flex justify-center">
-                        <img
-                          src={meals.dinner.imageURL}
-                          alt="recipe item"
-                          className="w-44 h-34 object-cover rounded-lg shadow-md"
-                        />
+                        {/* Remove (X) Button */}
+                        <button
+                          onClick={() => removeMealFromTimetable(day, mealType)}
+                          className="text-red-600 font-bold text-lg hover:text-red-800"
+                        >
+                          ✖
+                        </button>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="flex justify-center">
-                      <button
-                        onClick={() => openRecipeModal(day, "dinner")}
-                        className="px-4 py-2 bg-gray-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition"
-                      >
-                        + Add meal
-                      </button>
-                    </div>
-                  )}
-                </td>
+                    ) : (
+                      <div className="flex justify-center">
+                        <button
+                          onClick={() => openRecipeModal(day, mealType)}
+                          className="px-4 py-2 bg-gray-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition"
+                        >
+                          + Add meal
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                ))}
               </tr>
             ))}
           </tbody>
@@ -152,7 +163,6 @@ export default function Planning() {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg max-w-lg w-full shadow-lg">
-            {/* Modal Header with Close Button */}
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">
                 Select a Recipe for {selectedDay} {selectedMeal}
@@ -160,7 +170,6 @@ export default function Planning() {
               <div className="w-8"></div> {/* Spacer */}
             </div>
 
-            {/* Search Bar */}
             <input
               type="text"
               placeholder="Search for recipes..."
@@ -169,7 +178,6 @@ export default function Planning() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
 
-            {/* Scrollable Recipe List */}
             <div className="max-h-60 overflow-y-auto mb-4">
               <ul>
                 {filteredRecipes.length > 0 ? (
@@ -189,7 +197,6 @@ export default function Planning() {
               </ul>
             </div>
 
-            {/* Close Button */}
             <div className="text-center">
               <button
                 onClick={() => setIsModalOpen(false)}
