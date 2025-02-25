@@ -1,6 +1,5 @@
 import { useContext, useState } from "react";
 import { GlobalContext } from "../../context";
-import RecipeItem from "../../components/recipe-list";
 
 export default function Planning() {
   // const { planningList } = useContext(GlobalContext);
