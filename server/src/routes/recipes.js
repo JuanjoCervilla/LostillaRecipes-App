@@ -2,6 +2,7 @@ import { RecipeModel } from "../models/Recipes.js";
 import { UserModel } from "../models/Users.js";
 
 import express from "express";
+import mongoose from "mongoose";
 
 const router = express.Router();
 
@@ -74,43 +75,72 @@ router.post("/", async (req, res) => {
   }
 });
 
-// 
+// Save a Recipe
 router.put("/", async (req, res) => {
   try {
+  
     const recipe = await RecipeModel.findById(req.body.recipeID);
     const user = await UserModel.findById(req.body.userID);
 
-    user.savedRecipes.push(recipe);
+    if (!recipe || !user) {
+      return res.status(404).json({ error: "User or Recipe not found" });
+    }
+
+    user.savedRecipes.push(recipe._id); // Ensure it's the ObjectId
     await user.save();
 
     res.json({ savedRecipes: user.savedRecipes });
   } catch (err) {
-    res.json(err);
+    console.error("Error:", err);
+    res.status(500).json({ error: err.message });
   }
 });
 
-// aquí va a coger todos los id del saved list asociados al user
+
+// Get id of saved recipes for user ID given 
 router.get("/savedRecipes/ids", async (req, res) => {
   try {
+
     const user = await UserModel.findById(req.body.userID);
+
     res.json({ savedRecipes: user?.savedRecipes });
   } catch (err) {
     res.json(err);  
   }
 });
 
-// aquí va a coger todo lo que hay dentro de los id del savedRecipes 
-router.get("/savedRecipes", async (req, res) => {
-    try {
-      const user = await UserModel.findById(req.body.userID);
-      const savedRecipes = await RecipeModel.find({
-        _id: {$in: user.savedRecipes}
-        });
-      res.json({ savedRecipes });
-    } catch (err) {
-      res.json(err);
+  // Get saved recipes
+router.get("/savedRecipes/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: "Invalid user ID format" });
     }
-  });
+
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const validRecipeIDs = user.savedRecipes.filter(id =>
+      mongoose.Types.ObjectId.isValid(id)
+    );
+
+    if (validRecipeIDs.length === 0) {
+      return res.status(400).json({ error: "Invalid recipe ID format" });
+    }
+
+    const savedRecipes = await RecipeModel.find({
+      _id: { $in: validRecipeIDs },
+    });
+
+    console.log(savedRecipes);
+    res.status(200).json({ savedRecipes });
+  } catch (err) {
+    console.error("Error:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
   
 
 export { router as recipesRouter };
