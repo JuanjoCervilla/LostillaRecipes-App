@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { GlobalContext } from "../../context";
 import RecipeItem from "../../components/recipe-list";
 
-export default function Planning() {
+export default function SavedRecipes() {
   const { planningList } = useContext(GlobalContext);
 
   return (

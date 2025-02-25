@@ -108,7 +108,6 @@ export default function GlobalState({ children }) {
         handleSubmitSearch,
         setRecipeDetailsData,
         handleAddToPlanning,
-        setRecipePlanningList
       }}
     >
       {children}

@@ -78,7 +78,15 @@ export default function Navbar() {
             to={"/create-recipe"}
             className="text-gray-800 font-medium hover:text-blue-600 transition duration-300"
           >
-            ➕ Add New Recipe
+            ➕ Add Recipe
+          </NavLink>
+        </li>
+        <li>
+          <NavLink
+            to={"/savedRecipes"}
+            className="text-gray-800 font-medium hover:text-blue-600 transition duration-300"
+          >
+            📒 Saved
           </NavLink>
         </li>
         <li>

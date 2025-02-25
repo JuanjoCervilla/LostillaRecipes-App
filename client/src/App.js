@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/navbar";
 import Home from "./pages/home";
 import Planning from "./pages/planning";
+import SavedRecipes from "./pages/savedRecipes"
 import Details from "./pages/details";
 import Auth from "./pages/auth";
 import CreateRecipes from "./pages/createRecipes";
@@ -16,6 +17,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/planning" element={<Planning />} />
+          <Route path="/savedRecipes" element={<SavedRecipes />} />
           <Route path="/recipe-item/:id" element={<Details />} />
           <Route path="/create-recipe" element={<CreateRecipes />} />
         </Routes>

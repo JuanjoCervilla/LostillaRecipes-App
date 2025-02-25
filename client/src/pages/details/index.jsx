@@ -61,7 +61,7 @@ export default function Details() {
           {recipeDetailsData?.tags?.join(" - ")}
         </span>
         
-        {/* Button Add Planning */}
+        {/* Button Save Recipe */}
         <div>
           <button
             onClick={() => handleAddToPlanning(recipeDetailsData?.recipe)}
@@ -72,8 +72,8 @@ export default function Details() {
             planningList.findIndex(
               (item) => item._id === recipeDetailsData?._id
             ) !== -1
-              ? "Remove from planning"
-              : "Add to planning"}
+              ? "Remove from saved"
+              : "Save recipe"}
           </button>
         </div>
         <br />
