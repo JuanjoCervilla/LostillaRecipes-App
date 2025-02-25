@@ -1,16 +1,19 @@
 import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { GlobalContext } from "../../context";
+import { useGetUserID } from "../../hooks/useGetUserID";
+import axios from "axios";
 
 export default function Details() {
   const { id } = useParams();
   const [isLoading, setIsLoading] = useState(true);
+  const [savedRecipes, setSavedRecipes] = useState([]);
+  
+  const userID = useGetUserID();
   
   const {
     recipeDetailsData,
     setRecipeDetailsData,
-    planningList,
-    handleAddToPlanning,
   } = useContext(GlobalContext);
 
   useEffect(() => {
@@ -37,11 +40,51 @@ export default function Details() {
       // Optional: Reset recipe details when component unmounts
       // setRecipeDetailsData(null);
     };
-  }, [id, setRecipeDetailsData]); // Added dependencies to fix the useEffect warning
+  }, [id, setRecipeDetailsData]);
 
-  const isSaved = planningList && 
-    planningList.length > 0 && 
-    planningList.findIndex(item => item._id === recipeDetailsData?._id) !== -1;
+  useEffect(() => {
+    const fetchSavedRecipes = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:3001/recipes/savedRecipes/ids/${userID}`
+        );
+        setSavedRecipes(response.data.savedRecipes || []);
+      } catch (err) {
+        console.log(err);
+        setSavedRecipes([]);
+      }
+    };
+
+    if (userID) {
+      fetchSavedRecipes();
+    }
+  }, [userID]);
+
+  const saveRecipe = async(recipeID) => {
+    try {
+      const response = await axios.put("http://localhost:3001/recipes", {
+        recipeID, 
+        userID
+      });
+      
+      // Check if the response contains the updated saved recipes
+      if (response.data && Array.isArray(response.data.savedRecipes)) {
+        setSavedRecipes(response.data.savedRecipes);
+      } else {
+        // If the response structure is different, refetch the saved recipes
+        const updatedResponse = await axios.get(
+          `http://localhost:3001/recipes/savedRecipes/ids/${userID}`
+        );
+        setSavedRecipes(updatedResponse.data.savedRecipes || []);
+      }
+    } catch (err) {
+      console.error("Error saving recipe:", err);
+    }
+  };
+
+  const isRecipeSaved = savedRecipes && Array.isArray(savedRecipes) && 
+                       recipeDetailsData && 
+                       savedRecipes.includes(recipeDetailsData._id);
 
   if (isLoading) {
     return (
@@ -94,14 +137,14 @@ export default function Details() {
         {/* Button Save Recipe */}
         <div className="mt-2">
           <button
-            onClick={() => handleAddToPlanning(recipeDetailsData?.recipe)}
+            onClick={() => saveRecipe(recipeDetailsData?._id)}
             className={`px-6 py-3 rounded-lg text-sm uppercase font-medium tracking-wider shadow-md transition-all duration-200 ${
-              isSaved 
+              isRecipeSaved
                 ? "bg-red-500 hover:bg-red-600 text-white" 
                 : "bg-black hover:bg-gray-800 text-white"
             }`}
           >
-            {isSaved ? "Remove from saved" : "Save recipe"}
+            {isRecipeSaved ? "Remove from saved" : "Save recipe"}
           </button>
         </div>
         

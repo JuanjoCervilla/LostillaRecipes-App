@@ -16,7 +16,7 @@ export default function GlobalState({ children }) {
   // Variable con un json dentro de los detalles de la receta
   const [recipeDetailsData, setRecipeDetailsData] = useState({});
   //
-  const [planningList, setPlanningList] = useState([]);
+  // const [savedList, setSavedList] = useState([]);
   // ??
   const navigate = useNavigate();
   // New state for recipePlanningList
@@ -36,13 +36,12 @@ export default function GlobalState({ children }) {
         setLoading(false);
       }
     };
-
     fetchAllRecipes();
   }, []); // Empty dependency array means this runs once when the component is mounted.
 
   // Agregar este useEffect en `GlobalState.js`
   useEffect(() => {
-    console.log("selectedTypes actualizado en contexto:", selectedTypes);
+    // console.log("selectedTypes actualizado en contexto:", selectedTypes);
   }, [selectedTypes]); 
 
   // FUNCIONES
@@ -50,15 +49,11 @@ export default function GlobalState({ children }) {
   async function handleSubmitSearch(event) {
     event.preventDefault();
     
-    try {
-      console.log("selectedTypes antes de la petición:", searchParam); // 🔍 Depuración
-      
+    try {    
       const typeQuery = selectedTypes ? `&types=${selectedTypes}` : "";
       const searchQuery = searchParam ? `search=${searchParam}` : "";
       const query = `${searchQuery}${typeQuery ? `&${typeQuery}` : ""}`;
       
-      console.log("Query final:", query); // 🔍 Depuración
-  
       const res = await fetch(`http://localhost:3001/recipes?${query}`);
       const data = await res.json();
   
@@ -76,23 +71,6 @@ export default function GlobalState({ children }) {
     }
   }
   
-  //
-  function handleAddToPlanning(getCurrentItem) {
-    console.log(getCurrentItem);
-    let copyPlanningList = [...planningList];
-    const index = copyPlanningList.findIndex(
-      (item) => item.id === getCurrentItem.id
-    );
-
-    if (index === -1) {
-      copyPlanningList.push(getCurrentItem);
-    } else {
-      copyPlanningList.splice(index);
-    }
-
-    setPlanningList(copyPlanningList);
-  }
-
   return (
     <GlobalContext.Provider
       value={{
@@ -101,13 +79,11 @@ export default function GlobalState({ children }) {
         loading,
         recipeList,
         recipeDetailsData,
-        planningList,
         recipePlanningList,
         setSearchParam,
         setSelectedTypes,
         handleSubmitSearch,
         setRecipeDetailsData,
-        handleAddToPlanning,
       }}
     >
       {children}
