@@ -1,11 +1,19 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { GlobalContext } from "../../context";
 
-export default function Planning() {
-  // const { planningList } = useContext(GlobalContext);
+// Debounce function for optimized search
+const debounce = (func, delay) => {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      func(...args);
+    }, delay);
+  };
+};
 
+export default function Planning() {
   const { recipePlanningList, loading } = useContext(GlobalContext);
-  // Get recipePlanningList from context
   const [weeklyTimetable, setWeeklyTimetable] = useState({
     Monday: { lunch: "", dinner: "" },
     Tuesday: { lunch: "", dinner: "" },
@@ -15,9 +23,29 @@ export default function Planning() {
     Saturday: { lunch: "", dinner: "" },
     Sunday: { lunch: "", dinner: "" },
   });
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDay, setSelectedDay] = useState("");
   const [selectedMeal, setSelectedMeal] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredRecipes, setFilteredRecipes] = useState(recipePlanningList);
+
+  // Debounced search function
+  const handleSearch = debounce((query) => {
+    const filtered = recipePlanningList.filter((recipe) =>
+      recipe.title.toLowerCase().includes(query.toLowerCase())
+    );
+    setFilteredRecipes(filtered);
+  }, 300); // 300ms debounce delay
+
+  // Update filtered recipes when search term changes
+  useEffect(() => {
+    if (searchTerm === "") {
+      setFilteredRecipes(recipePlanningList);
+    } else {
+      handleSearch(searchTerm);
+    }
+  }, [searchTerm, recipePlanningList]);
 
   const openRecipeModal = (day, meal) => {
     setSelectedDay(day);
@@ -120,46 +148,57 @@ export default function Planning() {
         </table>
       </div>
 
-      {/* Recipe Planning List */}
-      {/* <div className="w-full">
-        {recipePlanningList && recipePlanningList.length > 0 ? (
-          recipePlanningList.map((item, index) => (
-            <RecipeItem key={index} item={item} />
-          ))
-        ) : (
-          <div>
-            <p className="lg:text-4xl text-xl text-center text-black font-extrabold">
-              Nothing is added in planning
-            </p>
-          </div>
-        )}
-      </div> */}
-
       {/* Modal for Recipe Selection */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-5 rounded-lg">
-            <h2 className="text-xl">
-              Select a Recipe for {selectedDay} {selectedMeal}
-            </h2>
-            <ul>
-              {recipePlanningList.map((recipe, index) => (
-                <li key={index} className="mb-2">
-                  <button
-                    className="p-2 border rounded"
-                    onClick={() => addRecipeToTimetable(recipe)}
-                  >
-                    {recipe.title}
-                  </button>
-                </li>
-              ))}
-            </ul>
-            <button
-              className="mt-5 bg-gray-300 p-2 rounded"
-              onClick={() => setIsModalOpen(false)}
-            >
-              Close
-            </button>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-lg w-full shadow-lg">
+            {/* Modal Header with Close Button */}
+            <div className="flex justify-between items-center mb-4">
+
+              <h2 className="text-xl font-semibold">
+                Select a Recipe for {selectedDay} {selectedMeal}
+              </h2>
+              <div className="w-8"></div> {/* Spacer */}
+            </div>
+
+            {/* Search Bar */}
+            <input
+              type="text"
+              placeholder="Search for recipes..."
+              className="mb-4 w-full p-3 border border-gray-300 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+
+            {/* Scrollable Recipe List */}
+            <div className="max-h-60 overflow-y-auto mb-4">
+              <ul>
+                {filteredRecipes.length > 0 ? (
+                  filteredRecipes.map((recipe, index) => (
+                    <li key={index} className="mb-2">
+                      <button
+                        className="p-3 border border-gray-300 rounded-lg w-full text-left hover:bg-gray-100 focus:ring-2 focus:ring-blue-500"
+                        onClick={() => addRecipeToTimetable(recipe)}
+                      >
+                        {recipe.title}
+                      </button>
+                    </li>
+                  ))
+                ) : (
+                  <li className="text-gray-500">No recipes found</li>
+                )}
+              </ul>
+            </div>
+
+            {/* Close Button */}
+            <div className="text-center">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
