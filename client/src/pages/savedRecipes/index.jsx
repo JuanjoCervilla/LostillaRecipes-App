@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { GlobalContext } from "../../context";
 import RecipeItem from "../../components/recipe-list";
 import { useGetUserID } from "../../hooks/useGetUserID";
 import axios from "axios";
@@ -22,7 +21,7 @@ export default function SavedRecipes() {
     };
 
     fetchSavedRecipes();
-  }, []);
+  }, [userID]);
 
   
     return (

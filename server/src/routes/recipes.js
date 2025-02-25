@@ -75,18 +75,33 @@ router.post("/", async (req, res) => {
   }
 });
 
-// Save a Recipe
+// Save or Remove a Recipe
 router.put("/", async (req, res) => {
   try {
+    const { recipeID, userID } = req.body;
+    
+    if (!recipeID || !userID) {
+      return res.status(400).json({ error: "Recipe ID and User ID are required" });
+    }
   
-    const recipe = await RecipeModel.findById(req.body.recipeID);
-    const user = await UserModel.findById(req.body.userID);
+    const recipe = await RecipeModel.findById(recipeID);
+    const user = await UserModel.findById(userID);
 
     if (!recipe || !user) {
       return res.status(404).json({ error: "User or Recipe not found" });
     }
 
-    user.savedRecipes.push(recipe._id); // Ensure it's the ObjectId
+    // Check if recipe is already saved
+    const recipeIndex = user.savedRecipes.indexOf(recipeID);
+    
+    if (recipeIndex === -1) {
+      // Recipe not saved yet, add it
+      user.savedRecipes.push(recipe._id);
+    } else {
+      // Recipe already saved, remove it
+      user.savedRecipes.splice(recipeIndex, 1);
+    }
+    
     await user.save();
 
     res.json({ savedRecipes: user.savedRecipes });
@@ -95,7 +110,6 @@ router.put("/", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 // Get id of saved recipes for user ID given 
 router.get("/savedRecipes/ids/:userID", async (req, res) => {

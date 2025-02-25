@@ -8,6 +8,7 @@ export default function Details() {
   const { id } = useParams();
   const [isLoading, setIsLoading] = useState(true);
   const [savedRecipes, setSavedRecipes] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
   
   const userID = useGetUserID();
   
@@ -35,56 +36,79 @@ export default function Details() {
 
     getRecipeDetails();
     
-    // Cleanup function
     return () => {
       // Optional: Reset recipe details when component unmounts
       // setRecipeDetailsData(null);
     };
   }, [id, setRecipeDetailsData]);
 
+  // Fetch saved recipes whenever the component mounts or userID changes
   useEffect(() => {
     const fetchSavedRecipes = async () => {
+      if (!userID) return;
+      
       try {
         const response = await axios.get(
           `http://localhost:3001/recipes/savedRecipes/ids/${userID}`
         );
+        console.log("Fetched saved recipes:", response.data);
         setSavedRecipes(response.data.savedRecipes || []);
       } catch (err) {
-        console.log(err);
+        console.error("Error fetching saved recipes:", err);
         setSavedRecipes([]);
       }
     };
 
-    if (userID) {
-      fetchSavedRecipes();
-    }
+    fetchSavedRecipes();
   }, [userID]);
 
-  const saveRecipe = async(recipeID) => {
+  const toggleSaveRecipe = async(recipeID) => {
+    if (!userID || !recipeID || isSaving) return;
+    
     try {
+      setIsSaving(true);
+      console.log(`Toggling save status for recipe ${recipeID}`);
+      
       const response = await axios.put("http://localhost:3001/recipes", {
         recipeID, 
         userID
       });
       
-      // Check if the response contains the updated saved recipes
+      console.log("Toggle response:", response.data);
+      
       if (response.data && Array.isArray(response.data.savedRecipes)) {
         setSavedRecipes(response.data.savedRecipes);
       } else {
-        // If the response structure is different, refetch the saved recipes
+        // Fallback if response format is unexpected
         const updatedResponse = await axios.get(
           `http://localhost:3001/recipes/savedRecipes/ids/${userID}`
         );
         setSavedRecipes(updatedResponse.data.savedRecipes || []);
       }
     } catch (err) {
-      console.error("Error saving recipe:", err);
+      console.error("Error toggling recipe save status:", err);
+      // Refresh saved recipes list on error to ensure UI state is correct
+      try {
+        const refreshResponse = await axios.get(
+          `http://localhost:3001/recipes/savedRecipes/ids/${userID}`
+        );
+        setSavedRecipes(refreshResponse.data.savedRecipes || []);
+      } catch (refreshErr) {
+        console.error("Failed to refresh saved recipes:", refreshErr);
+      }
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const isRecipeSaved = savedRecipes && Array.isArray(savedRecipes) && 
-                       recipeDetailsData && 
-                       savedRecipes.includes(recipeDetailsData._id);
+  // Determine if the current recipe is saved
+  const isRecipeSaved = Boolean(
+    savedRecipes && 
+    Array.isArray(savedRecipes) && 
+    recipeDetailsData && 
+    recipeDetailsData._id &&
+    savedRecipes.includes(recipeDetailsData._id)
+  );
 
   if (isLoading) {
     return (
@@ -137,14 +161,21 @@ export default function Details() {
         {/* Button Save Recipe */}
         <div className="mt-2">
           <button
-            onClick={() => saveRecipe(recipeDetailsData?._id)}
+            onClick={() => toggleSaveRecipe(recipeDetailsData?._id)}
+            disabled={isSaving}
             className={`px-6 py-3 rounded-lg text-sm uppercase font-medium tracking-wider shadow-md transition-all duration-200 ${
               isRecipeSaved
                 ? "bg-red-500 hover:bg-red-600 text-white" 
                 : "bg-black hover:bg-gray-800 text-white"
-            }`}
+            } ${isSaving ? 'opacity-70 cursor-not-allowed' : ''}`}
           >
-            {isRecipeSaved ? "Remove from saved" : "Save recipe"}
+            {isSaving ? (
+              <span>Processing...</span>
+            ) : isRecipeSaved ? (
+              "Remove from saved"
+            ) : (
+              "Save recipe"
+            )}
           </button>
         </div>
         
