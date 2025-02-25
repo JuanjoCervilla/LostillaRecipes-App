@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from "react";
 import { GlobalContext } from "../../context";
 
-// Debounce function for optimized search
+// Debounce function
 const debounce = (func, delay) => {
   let timer;
   return (...args) => {
@@ -30,22 +30,22 @@ export default function Planning() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredRecipes, setFilteredRecipes] = useState(recipePlanningList);
 
-  // Debounced search function
-  const handleSearch = debounce((query) => {
-    const filtered = recipePlanningList.filter((recipe) =>
-      recipe.title.toLowerCase().includes(query.toLowerCase())
-    );
-    setFilteredRecipes(filtered);
-  }, 300); // 300ms debounce delay
-
-  // Update filtered recipes when search term changes
+  // Effect for updating the filtered recipe list
   useEffect(() => {
+    const debouncedSearch = debounce((query) => {
+      setFilteredRecipes(
+        recipePlanningList.filter((recipe) =>
+          recipe.title.toLowerCase().includes(query.toLowerCase())
+        )
+      );
+    }, 300);
+
     if (searchTerm === "") {
       setFilteredRecipes(recipePlanningList);
     } else {
-      handleSearch(searchTerm);
+      debouncedSearch(searchTerm);
     }
-  }, [searchTerm, recipePlanningList]);
+  }, [searchTerm, recipePlanningList]); // No need for useCallback
 
   const openRecipeModal = (day, meal) => {
     setSelectedDay(day);
@@ -154,7 +154,6 @@ export default function Planning() {
           <div className="bg-white p-6 rounded-lg max-w-lg w-full shadow-lg">
             {/* Modal Header with Close Button */}
             <div className="flex justify-between items-center mb-4">
-
               <h2 className="text-xl font-semibold">
                 Select a Recipe for {selectedDay} {selectedMeal}
               </h2>
