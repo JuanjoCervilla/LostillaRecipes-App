@@ -5,8 +5,8 @@ import RecipeItem from "../../components/recipe-list";
 export default function Planning() {
   // const { planningList } = useContext(GlobalContext);
 
-  const { recipeList, loading } = useContext(GlobalContext);
-  // Get recipeList from context
+  const { recipePlanningList, loading } = useContext(GlobalContext);
+  // Get recipePlanningList from context
   const [weeklyTimetable, setWeeklyTimetable] = useState({
     Monday: { lunch: "", dinner: "" },
     Tuesday: { lunch: "", dinner: "" },
@@ -122,9 +122,9 @@ export default function Planning() {
       </div>
 
       {/* Recipe Planning List */}
-      <div className="w-full">
-        {recipeList && recipeList.length > 0 ? (
-          recipeList.map((item, index) => (
+      {/* <div className="w-full">
+        {recipePlanningList && recipePlanningList.length > 0 ? (
+          recipePlanningList.map((item, index) => (
             <RecipeItem key={index} item={item} />
           ))
         ) : (
@@ -134,7 +134,7 @@ export default function Planning() {
             </p>
           </div>
         )}
-      </div>
+      </div> */}
 
       {/* Modal for Recipe Selection */}
       {isModalOpen && (
@@ -144,7 +144,7 @@ export default function Planning() {
               Select a Recipe for {selectedDay} {selectedMeal}
             </h2>
             <ul>
-              {recipeList.map((recipe, index) => (
+              {recipePlanningList.map((recipe, index) => (
                 <li key={index} className="mb-2">
                   <button
                     className="p-2 border rounded"

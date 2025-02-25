@@ -19,6 +19,26 @@ export default function GlobalState({ children }) {
   const [planningList, setPlanningList] = useState([]);
   // ??
   const navigate = useNavigate();
+  // New state for recipePlanningList
+  const [recipePlanningList, setRecipePlanningList] = useState([]);
+
+   // Fetch all recipes when the component is mounted
+   useEffect(() => {
+    const fetchAllRecipes = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch("http://localhost:3001/recipes");
+        const data = await res.json();
+        setRecipePlanningList(data); // Store recipes in recipePlanningList
+        setLoading(false);
+      } catch (e) {
+        console.log(e);
+        setLoading(false);
+      }
+    };
+
+    fetchAllRecipes();
+  }, []); // Empty dependency array means this runs once when the component is mounted.
 
   // Agregar este useEffect en `GlobalState.js`
   useEffect(() => {
@@ -82,11 +102,13 @@ export default function GlobalState({ children }) {
         recipeList,
         recipeDetailsData,
         planningList,
+        recipePlanningList,
         setSearchParam,
         setSelectedTypes,
         handleSubmitSearch,
         setRecipeDetailsData,
         handleAddToPlanning,
+        setRecipePlanningList
       }}
     >
       {children}
