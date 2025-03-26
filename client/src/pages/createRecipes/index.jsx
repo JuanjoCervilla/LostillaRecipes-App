@@ -220,7 +220,7 @@ export default function CreateRecipes() {
 
   return (
     <div class="flex justify-center bg-white p-5">
-      <div class="flex flex-col justify-center items-center p-5 bg-gray-100 rounded-md shadow-md m-5 w-[600px]">
+      <div class="flex flex-col justify-center items-center p-5 bg-gray-100 rounded-md shadow-md m-5 w-[400px]">
         <h1 class="font-bold mt-0">New Recipe</h1>
         <form class="flex flex-col" onSubmit={onSubmit}>
           <br></br>
@@ -236,7 +236,9 @@ export default function CreateRecipes() {
             placeholder="Type your recipe title..."
             value={recipe.title}
             onChange={handleChange}
-            class="p-2 text-base rounded-md border border-gray-500"
+            className={`p-2 text-base rounded-md border ${
+              incompleteFields.title ? 'border-red-500' : 'border-gray-500'
+            }`}
           />
           {incompleteFields.title && (
             <p className="text-red-500 text-sm mt-1">Title is required</p>
@@ -252,7 +254,9 @@ export default function CreateRecipes() {
             name="type"
             value={recipe.type}
             onChange={handleChange}
-            class="p-2 text-base rounded-md border border-gray-500"
+            className={`p-2 text-base rounded-md border ${
+              incompleteFields.type ? 'border-red-500' : 'border-gray-500'
+            }`}
           >
             <option value="">Select a type</option>
             <option value="Main dish">Main dish</option>
@@ -331,7 +335,9 @@ export default function CreateRecipes() {
             name="dinerNumber"
             value={recipe.dinerNumber}
             onChange={handleChange}
-            class="p-2 text-base rounded-md border border-gray-500"
+            className={`p-2 text-base rounded-md border ${
+              incompleteFields.dinerNumber ? 'border-red-500' : 'border-gray-500'
+            }`}
           />
           {incompleteFields.dinerNumber && (
             <p className="text-red-500 text-sm mt-1">Number of diners is required</p>
