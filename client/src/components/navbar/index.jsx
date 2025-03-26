@@ -61,7 +61,7 @@ export default function Navbar() {
           onChange={(event) => setSearchParam(event.target.value)}
           placeholder="Search recipes..."
           className="flex-grow bg-gray-100 p-3 px-6 rounded-l-full outline-none shadow-md border border-gray-300 
-                    transition focus:ring-2 focus:ring-blue-500"
+                    transition focus:ring-2 focus:ring-blue-500 text-black"
         />
         <button
           type="submit"
@@ -128,6 +128,5 @@ export default function Navbar() {
     </div>
   </div>
 </div>
-
   );
 }
