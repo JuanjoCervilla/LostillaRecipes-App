@@ -25,6 +25,16 @@ export default function CreateRecipes() {
     userOwner: userID,
   });
 
+    // State to track incomplete fields
+    const [incompleteFields, setIncompleteFields] = useState({
+      title: false,
+      type: false,
+      dinerNumber: false,
+      ingredients: [],
+      instructions: false,
+      imageURL:false,
+    });
+
   const [currentTag, setCurrentTag] = useState(""); // Track the current tag being typed
   const predefinedTags = ["Vegetarian", "Vegan", "Gluten-Free", "Spicy"]; // Sample predefined tags
 
@@ -36,6 +46,11 @@ export default function CreateRecipes() {
   const handleChange = (event) => {
     const { name, value } = event.target;
     setRecipe({ ...recipe, [name]: value });
+    
+    // Clear incomplete field status when something is entered
+    if (incompleteFields[name] !== undefined) {
+      setIncompleteFields(prev => ({ ...prev, [name]: false }));
+    }
   };
 
   // TAG FIELD
@@ -43,6 +58,7 @@ export default function CreateRecipes() {
   const handleTagChange = (event) => {
     setCurrentTag(event.target.value);
   };
+
   // Function to add a tag when the user presses Enter
   const handleTagKeyDown = (event) => {
     if (event.key === "Enter") {
@@ -91,6 +107,14 @@ export default function CreateRecipes() {
       };
       return { ...prevRecipe, ingredients: updatedIngredients };
     });
+
+    // Clear incomplete ingredient field status
+    const newIncompleteIngredients = [...incompleteFields.ingredients];
+    newIncompleteIngredients[index] = false;
+    setIncompleteFields(prev => ({ 
+      ...prev, 
+      ingredients: newIncompleteIngredients 
+    }));
   };
 
   // añade los cambios de instruction
@@ -99,6 +123,14 @@ export default function CreateRecipes() {
     const instructions = [...recipe.instructions];
     instructions[index] = value;
     setRecipe({ ...recipe, instructions });
+
+    // Clear instruction incomplete status
+    const newIncompleteInstructions = [...incompleteFields.ingredients];
+    newIncompleteInstructions[index] = false;
+    setIncompleteFields(prev => ({ 
+      ...prev, 
+      instructions: false 
+    }));
   };
   // añade un instruction vacío para que puedas modificarlo luego
   const handleAddInstruction = () => {
@@ -106,20 +138,40 @@ export default function CreateRecipes() {
     setRecipe({ ...recipe, instructions });
   };
 
-  // onSubmit button
-    const onSubmit = async (event) => {
+  const onSubmit = async (event) => {
     event.preventDefault();
   
-    // Check if the required fields are filled
-    if (!recipe.title || !recipe.type || recipe.dinerNumber <= 0 || recipe.ingredients.some(ingredient => !ingredient.name || ingredient.quantity <= 0)) {
-      alert("Please fill in all the required fields!");
+    // Reset incomplete fields
+    const newIncompleteFields = {
+      title: !recipe.title,
+      type: !recipe.type,
+      dinerNumber: recipe.dinerNumber <= 0,
+      ingredients: recipe.ingredients.map(ingredient => 
+        !ingredient.name || ingredient.quantity <= 0
+      ),
+      instructions: recipe.instructions.some(instruction => !instruction.trim()), 
+      imageURL: !recipe.imageURL
+    };
+  
+    setIncompleteFields(newIncompleteFields);
+  
+    // Check if any fields are incomplete
+    const isAnyFieldIncomplete = 
+      newIncompleteFields.title ||
+      newIncompleteFields.type ||
+      newIncompleteFields.dinerNumber ||
+      newIncompleteFields.ingredients.some(Boolean) ||
+      newIncompleteFields.instructions ||
+      newIncompleteFields.imageURL;
+  
+    if (isAnyFieldIncomplete) {
       return; // Prevent form submission if validation fails
     }
   
     try {
       await axios.post("http://localhost:3001/recipes", recipe);
       alert("Recipe created!");
-      navigate("/"); // Navigate to the home page after successful submission
+      navigate("/");
     } catch (err) {
       console.error(err);
       alert("There was an error while submitting the recipe.");
@@ -130,7 +182,7 @@ export default function CreateRecipes() {
   return (
     <div class="flex justify-center bg-white p-5">
       <div class="flex flex-col justify-center items-center p-5 bg-gray-100 rounded-md shadow-md m-5 w-[400px]">
-        <h2 class="font-bold mt-0">Create Recipe</h2>
+        <h1 class="font-bold mt-0">New Recipe</h1>
         <form class="flex flex-col" onSubmit={onSubmit}>
           <br></br>
 
@@ -146,7 +198,10 @@ export default function CreateRecipes() {
             onChange={handleChange}
             class="p-2 text-base rounded-md border border-gray-500"
           />
-          <br></br>
+          {incompleteFields.title && (
+            <p className="text-red-500 text-sm mt-1">Title is required</p>
+          )}
+          <br />
 
           {/* Type field*/}
           <label htmlFor="type" class="mb-[5px]">
@@ -165,15 +220,10 @@ export default function CreateRecipes() {
             <option value="Appetizer">Appetizer</option>
             <option value="Drink">Drink</option>
           </select>
-          {/* <input
-            type="text"
-            id="type"
-            name="type"
-            value={recipe.type}
-            onChange={handleChange}
-            class="p-2 text-base rounded-md border border-gray-500"
-          /> */}
-          <br></br>
+          {incompleteFields.type && (
+            <p className="text-red-500 text-sm mt-1">Type is required</p>
+          )}
+          <br />
 
           {/* Tags field */}
           <label htmlFor="tags" className="mb-[5px]">
@@ -229,7 +279,7 @@ export default function CreateRecipes() {
               ))}
             </div>
           )}
-          <br></br>
+          <br />
 
           {/* dinerNumber */}
           <label htmlFor="type" class="mb-[5px]">
@@ -243,7 +293,10 @@ export default function CreateRecipes() {
             onChange={handleChange}
             class="p-2 text-base rounded-md border border-gray-500"
           />
-          <br></br>
+          {incompleteFields.dinerNumber && (
+            <p className="text-red-500 text-sm mt-1">Number of diners is required</p>
+          )}
+          <br />
 
           {/* Ingredients field */}
           <label htmlFor="ingredients" class="mb-[5px]">
@@ -289,7 +342,13 @@ export default function CreateRecipes() {
               Add Ingredient
             </button>
           </div>
-          <br></br>
+          {/* Notification for incomplete fields */}
+          {(incompleteFields.ingredients.some(Boolean)) && (
+            <p className="text-red-500 text-sm mt-1">
+              Please complete all ingredient fields
+            </p>
+          )}
+          <br />
 
           {/* Instructions field */}
           <label htmlFor="intruction" class="mb-[5px]">
@@ -316,10 +375,15 @@ export default function CreateRecipes() {
               Add Instruction
             </button>
           </div>
-          <br></br>
+          {incompleteFields.instructions && (
+            <p className="text-red-500 text-sm mt-1">
+              Please complete all instruction fields
+            </p>
+          )}
+          <br />
 
           {/* Image URL */}
-          <label htmlFor="imageUrl" class="mb-[5px]">
+          <label htmlFor="imageUrl" className="mb-[5px]">
             Image URL
           </label>
           <input
@@ -328,10 +392,24 @@ export default function CreateRecipes() {
             name="imageURL"
             value={recipe.imageURL}
             onChange={handleChange}
-            class="p-2 text-base rounded-md border border-gray-500"
+            className={`p-2 text-base rounded-md border ${
+              incompleteFields.imageURL ? 'border-red-500' : 'border-gray-500'
+            }`}
           />
-          <br></br>
-          <br></br>
+          {incompleteFields.imageURL && (
+            <p className="text-red-500 text-sm mt-1">An image is required</p>
+          )}
+          <br />
+
+          {Object.values(incompleteFields).some(
+            val => val === true || (Array.isArray(val) && val.some(Boolean))
+          ) && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-4" role="alert">
+              <strong className="font-bold">Not all fields are completed!</strong>
+              <span className="block sm:inline"> Please review and fill in all required fields.</span>
+            </div>
+          )}
+          <br />
 
           {/* Submit button */}
           <div class="flex justify-center items-center">
