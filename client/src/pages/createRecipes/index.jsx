@@ -117,6 +117,25 @@ export default function CreateRecipes() {
     }));
   };
 
+  const handleDeleteIngredient = () => {
+    if (recipe.ingredients.length > 1) {
+      setRecipe((prevRecipe) => ({
+        ...prevRecipe,
+        ingredients: prevRecipe.ingredients.slice(0, -1)
+      }));
+  
+      // Also update the incomplete ingredients tracking
+      setIncompleteFields((prevIncomplete) => {
+        const newIncompleteIngredients = [...prevIncomplete.ingredients];
+        newIncompleteIngredients.pop();
+        return {
+          ...prevIncomplete,
+          ingredients: newIncompleteIngredients
+        };
+      });
+    }
+  };
+
   // añade los cambios de instruction
   const handleInstructionChange = (event, index) => {
     const { value } = event.target;
@@ -136,6 +155,26 @@ export default function CreateRecipes() {
   const handleAddInstruction = () => {
     const instructions = [...recipe.instructions, " "];
     setRecipe({ ...recipe, instructions });
+  };
+
+  const handleDeleteInstruction = (event) => {
+    // Prevent any default form submission behavior
+    event.preventDefault();
+    
+    if (recipe.instructions.length > 1) {
+      setRecipe((prevRecipe) => {
+        const updatedInstructions = prevRecipe.instructions.slice(0, -1);
+        return { ...prevRecipe, instructions: updatedInstructions };
+      });
+  
+      // Update incomplete instructions tracking
+      setIncompleteFields((prevIncomplete) => ({
+        ...prevIncomplete,
+        instructions: recipe.instructions.length > 2 
+          ? false 
+          : recipe.instructions[0].trim() === ''
+      }));
+    }
   };
 
   const onSubmit = async (event) => {
@@ -181,7 +220,7 @@ export default function CreateRecipes() {
 
   return (
     <div class="flex justify-center bg-white p-5">
-      <div class="flex flex-col justify-center items-center p-5 bg-gray-100 rounded-md shadow-md m-5 w-[400px]">
+      <div class="flex flex-col justify-center items-center p-5 bg-gray-100 rounded-md shadow-md m-5 w-[600px]">
         <h1 class="font-bold mt-0">New Recipe</h1>
         <form class="flex flex-col" onSubmit={onSubmit}>
           <br></br>
@@ -194,6 +233,7 @@ export default function CreateRecipes() {
             type="text"
             id="title"
             name="title"
+            placeholder="Type your recipe title..."
             value={recipe.title}
             onChange={handleChange}
             class="p-2 text-base rounded-md border border-gray-500"
@@ -333,14 +373,23 @@ export default function CreateRecipes() {
               />
             </div>
           ))}
-          <div class="flex justify-center items-center">
+          <div className="flex justify-center items-center gap-2">
             <button
               type="button"
               onClick={handleAddIngredient}
-              class="px-4 py-1 text-sm font-medium rounded-lg border border-gray-400 bg-gray-200 text-gray-700 hover:bg-gray-300 hover:border-gray-500 transition-all duration-200 shadow-sm w-auto max-w-max"
+              className="px-4 py-1 text-sm font-medium rounded-lg border border-gray-400 bg-gray-200 text-gray-700 hover:bg-gray-300 hover:border-gray-500 transition-all duration-200 shadow-sm w-auto max-w-max"
             >
               Add Ingredient
             </button>
+            {recipe.ingredients.length > 1 && (
+              <button
+                type="button"
+                onClick={handleDeleteIngredient}
+                className="px-4 py-1 text-sm font-medium rounded-lg border border-gray-400 bg-gray-300 text-gray-700 hover:bg-gray-300 hover:border-gray-500 transition-all duration-200 shadow-sm w-auto max-w-max"
+              >
+                Delete Ingredient
+              </button>
+            )}
           </div>
           {/* Notification for incomplete fields */}
           {(incompleteFields.ingredients.some(Boolean)) && (
@@ -366,14 +415,23 @@ export default function CreateRecipes() {
               />
             </div>
           ))}
-          <div class="flex justify-center items-center">
+          <div className="flex justify-center items-center gap-2">
             <button
               type="button"
               onClick={handleAddInstruction}
-              class="px-4 py-1 text-sm font-medium rounded-lg border border-gray-400 bg-gray-200 text-gray-700 hover:bg-gray-300 hover:border-gray-500 transition-all duration-200 shadow-sm w-auto max-w-max"
+              className="px-4 py-1 text-sm font-medium rounded-lg border border-gray-400 bg-gray-200 text-gray-700 hover:bg-gray-300 hover:border-gray-500 transition-all duration-200 shadow-sm w-auto max-w-max"
             >
               Add Instruction
             </button>
+            {recipe.instructions.length > 1 && (
+              <button
+                type="button"
+                onClick={handleDeleteInstruction}
+                className="px-4 py-1 text-sm font-medium rounded-lg border border-gray-400 bg-gray-300 text-gray-700 hover:bg-gray-300 hover:border-gray-500 transition-all duration-200 shadow-sm w-auto max-w-max"
+              >
+                Delete Instruction
+              </button>
+            )}
           </div>
           {incompleteFields.instructions && (
             <p className="text-red-500 text-sm mt-1">
@@ -390,6 +448,7 @@ export default function CreateRecipes() {
             type="text"
             id="imageURL"
             name="imageURL"
+            placeholder="Copy your URL image..."
             value={recipe.imageURL}
             onChange={handleChange}
             className={`p-2 text-base rounded-md border ${
