@@ -76,19 +76,22 @@ export default function Navbar() {
     {/* Right - Navbar Links */}
     <ul className="flex gap-6 items-center">
       <li>
+      {cookies.access_token ? (
         <NavLink to={"/create-recipe"} className="hover:text-blue-400 transition">
           ➕ Add Recipe
-        </NavLink>
+        </NavLink> ) : ("")}
       </li>
       <li>
+        {cookies.access_token ? (
         <NavLink to={"/savedRecipes"} className="hover:text-blue-400 transition">
-          📒 Saved
-        </NavLink>
+        📒 Saved
+        </NavLink>) : ("")}
       </li>
       <li>
+        {cookies.access_token ? (
         <NavLink to={"/planning"} className="hover:text-blue-400 transition">
-          📅 Planning
-        </NavLink>
+        📅 Planning
+        </NavLink>) : ("")}
       </li>
       <li>
         {!cookies.access_token ? (
