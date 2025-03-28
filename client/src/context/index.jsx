@@ -56,7 +56,10 @@ export default function GlobalState({ children }) {
       const searchQuery = searchParam ? `search=${searchParam}` : "";
       const query = `${searchQuery}${typeQuery ? `&${typeQuery}` : ""}`;
       
-      const res = await fetch(`http://localhost:3001/recipes?${query}`,  {headers: {authorization : cookies.access_token}});
+      const res = await fetch(`http://localhost:3001/recipes?${query}`, {
+        headers: { authorization: cookies.access_token },
+      });
+      
       const data = await res.json();
   
       if (data) {
