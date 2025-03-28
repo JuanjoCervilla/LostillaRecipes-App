@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect} from "react";
 import { useNavigate } from "react-router-dom";
+import { useCookies } from "react-cookie";
 
 export const GlobalContext = createContext(null); //initial value
 
@@ -19,6 +20,7 @@ export default function GlobalState({ children }) {
   // const [savedList, setSavedList] = useState([]);
   // ??
   const navigate = useNavigate();
+  const [cookies, _] = useCookies(["access_token"]);
   // New state for recipePlanningList
   const [recipePlanningList, setRecipePlanningList] = useState([]);
 
@@ -54,7 +56,7 @@ export default function GlobalState({ children }) {
       const searchQuery = searchParam ? `search=${searchParam}` : "";
       const query = `${searchQuery}${typeQuery ? `&${typeQuery}` : ""}`;
       
-      const res = await fetch(`http://localhost:3001/recipes?${query}`);
+      const res = await fetch(`http://localhost:3001/recipes?${query}`,  {headers: {authorization : cookies.access_token}});
       const data = await res.json();
   
       if (data) {

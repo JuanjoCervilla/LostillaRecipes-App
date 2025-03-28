@@ -8,7 +8,7 @@ import mongoose from "mongoose";
 const router = express.Router();
 
 // Combined search and filter route
-router.get("/", async (req, res) => {
+router.get("/", verifyToken, async (req, res) => {
   try {
     const { search, types } = req.query; // Extract 'search' and 'types' parameters from the query string
 
