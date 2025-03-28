@@ -2,10 +2,12 @@ import { useState } from "react";
 import axios from "axios";
 import { useGetUserID } from "../../hooks/useGetUserID";
 import { useNavigate } from "react-router-dom";
+import { useCookies } from "react-cookie";
 
 export default function CreateRecipes() {
   // Posible supresión : consigue el UserID de localStorage
   const userID = useGetUserID();
+  const [cookies, _] = useCookies(["access_token"]);
 
   // variable para crear nueva receta
   const [recipe, setRecipe] = useState({
@@ -208,7 +210,7 @@ export default function CreateRecipes() {
     }
   
     try {
-      await axios.post("http://localhost:3001/recipes", recipe);
+      await axios.post("http://localhost:3001/recipes", recipe, {headers: {authorization : cookies.access_token}});
       alert("Recipe created!");
       navigate("/");
     } catch (err) {

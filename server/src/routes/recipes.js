@@ -1,5 +1,6 @@
 import { RecipeModel } from "../models/Recipes.js";
 import { UserModel } from "../models/Users.js";
+import { verifyToken } from "./users.js";
 
 import express from "express";
 import mongoose from "mongoose";
@@ -61,7 +62,7 @@ router.get("/:id", async (req, res) => {
   });
   
 // new recipes router POST
-router.post("/", async (req, res) => {
+router.post("/", verifyToken, async (req, res) => {
 
   // las variables requeridas para el post tendrá la misma estructura que el RecipeModel
   const newRecipe = new RecipeModel(req.body); 
@@ -76,7 +77,7 @@ router.post("/", async (req, res) => {
 });
 
 // Save or Remove a Recipe
-router.put("/", async (req, res) => {
+router.put("/",verifyToken, async (req, res) => {
   try {
     const { recipeID, userID } = req.body;
     
@@ -148,7 +149,6 @@ router.get("/savedRecipes/:userId", async (req, res) => {
       _id: { $in: validRecipeIDs },
     });
 
-    console.log(savedRecipes);
     res.status(200).json({ savedRecipes });
   } catch (err) {
     console.error("Error:", err);
@@ -156,5 +156,4 @@ router.get("/savedRecipes/:userId", async (req, res) => {
   }
 });
   
-
 export { router as recipesRouter };

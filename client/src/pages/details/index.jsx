@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { GlobalContext } from "../../context";
 import { useGetUserID } from "../../hooks/useGetUserID";
+import { useCookies } from "react-cookie";
 import axios from "axios";
 
 export default function Details() {
@@ -9,6 +10,7 @@ export default function Details() {
   const [isLoading, setIsLoading] = useState(true);
   const [savedRecipes, setSavedRecipes] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [cookies, _] = useCookies(["access_token"]);
   
   const userID = useGetUserID();
   
@@ -72,7 +74,7 @@ export default function Details() {
       const response = await axios.put("http://localhost:3001/recipes", {
         recipeID, 
         userID
-      });
+      }, {headers: {authorization : cookies.access_token}});
       
       console.log("Toggle response:", response.data);
       
