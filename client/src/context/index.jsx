@@ -29,7 +29,7 @@ export default function GlobalState({ children }) {
     const fetchAllRecipes = async () => {
       try {
         setLoading(true);
-        const res = await fetch("http://localhost:3001/recipes");
+        const res = await fetch("http://localhost:3001/recipes", {headers: { authorization: cookies.access_token }});
         const data = await res.json();
         setRecipePlanningList(data); // Store recipes in recipePlanningList
         setLoading(false);
@@ -38,7 +38,7 @@ export default function GlobalState({ children }) {
         setLoading(false);
       }
     };
-    fetchAllRecipes();
+    if (cookies.access_token) fetchAllRecipes();
   }, []); // Empty dependency array means this runs once when the component is mounted.
 
   // Agregar este useEffect en `GlobalState.js`
